@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Secret Chat Website</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+  <img src="{{ url_for('static', filename='mark.jpg') }}" width="400" height="350"/><img src="{{ url_for('static', filename='xi.jpg') }}" width="700" height="350"/>
+</head>
+<body>
+
+  <h3 style='color: rgba(0, 123, 160, 0.945);font-size: 30px;'>Type your messages below </h3>
+  <h3 style='color: rgba(252, 91, 16, 0.945);font-size: 30px;'>Mark Zuckerberg and Xi Jing Ping can't read your messages! </h3>
+  <div class="message_holder"></div>
+  <br>
+  <br>
+
+  <form action="" method="POST">
+    <input type="text" class="username" placeholder="User Name"/>
+    <input type="text" class="message" placeholder="Messages"/>
+    <input type="submit"/>
+  </form>
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+  <script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on( 'connect', function() {
+      socket.emit( 'my event', {
+        data: 'User Connected'
+      } )
+      var form = $( 'form' ).on( 'submit', function( e ) {
+        e.preventDefault()
+        let user_name = $( 'input.username' ).val()
+        let user_input = $( 'input.message' ).val()
+        socket.emit( 'my event', {
+          user_name : user_name,
+          message : user_input
+        } )
+        $( 'input.message' ).val( '' ).focus()
+      } )
+    } )
+    socket.on( 'my response', function( msg ) {
+      console.log( msg )
+      if( typeof msg.user_name !== 'undefined' ) {
+        $( 'h3' ).remove()
+        $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>' )
+      }
+    })
+  </script>
+
+</body>
+</html>
